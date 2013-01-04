@@ -1,0 +1,31 @@
+{
+  "name": "require-tree",
+  "description": "require() whole directory trees",
+  "version": "0.1.0",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "",
+    "should": ""
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ricardobeat/require-tree.git"
+  },
+  "author": "Ricardo Tomasi",
+  "license": "MIT",
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "require",
+    "tree",
+    "api",
+    "paths",
+    "directory",
+    "directories"
+  ]
+}
