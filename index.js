@@ -1,42 +1,11 @@
 // require-tree
 // ============
 /*
-require()s a full directory tree, including subdirectories
-Example:
+require() a directory tree
 
-Directory structure:
-index.js
-  /models
-    a.js
-    b.js
-    c.js
-      /extra
-        thing.js
+(c) Ricardo Tomasi 2012
+License: MIT <ricardo.mit-license.org>
 
-index.js:
-    var require_tree = require('require-tree')
-      , models = require_tree('./models')
-
-    models == {
-       a: { exported module }
-     , b: { exported module }
-     , c: { exported module }
-    }
-
-Options object:
-
-    require_tree('./models', { options })
-
-Key/function where to get the module name:
-
-    { name: 'key' }
-    { name: function(obj, filename){ return filename.toUpperCase() } }
-
-Key/array/function where to get the object to be exported:
-
-    { main: 'somekey' }
-    { main: ['main', 'util'] }
-    { main: function(obj, filename){ return { x: obj.x } } }
 */
 
 var fs   = require('fs')
