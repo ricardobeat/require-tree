@@ -66,6 +66,11 @@ It works with nested directories:
         pages.user.posts
     */
 
+To require the current module's root folder, in case you are using a directory's
+`index.js` to load the rest of the tree, use `__dirname`:
+
+    var tree = require_tree(__dirname, { index: false })
+
 ### Options
 
     {
