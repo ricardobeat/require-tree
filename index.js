@@ -30,13 +30,14 @@ function extend (obj, source) {
     return obj
 }
 
-function require_tree (dir, options) {
+function require_tree (directory, options) {
 
     options = extend({
         index: true
     }, options)
 
-    var dir       = path.resolve(dir)
+    var dir       = path.resolve(directory)
+      , relative  = path.relative(process.cwd(), directory)
       , forbidden = ['.json', '.node']
       , tree = {}
 
@@ -90,7 +91,7 @@ function require_tree (dir, options) {
             tree[name] = obj
         }
 
-        options.each && options.each(file, fpath)
+        options.each && options.each(file, path.join(relative, file))
 
     })
 
