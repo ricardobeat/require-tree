@@ -90,6 +90,8 @@ function require_tree (dir, options) {
             tree[name] = obj
         }
 
+        options.each && options.each(file, fpath)
+
     })
 
     return tree

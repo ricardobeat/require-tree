@@ -69,7 +69,8 @@ It works with nested directories:
 ### Options
 
     {
-        name  : [String | Function]         // the object's key to use as name
-        main  : [String | Array | Function] // what keys should be exported
-        index : [Boolean]                   // load 'index.js' files (`true` by default)
+        name  : [String | Function(exports, file)]         // the object's property to use as key
+        main  : [String | Array | Function(exports, file)] // what keys should be exported
+        index : [Boolean]                                  // load 'index.js' files (`true` by default)
+        each  : [Function]                                 // callback to run after each module
     }
