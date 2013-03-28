@@ -91,7 +91,7 @@ function require_tree (directory, options) {
             tree[name] = obj
         }
 
-        options.each && options.each(file, path.join(relative, file))
+        options.each && options.each(obj, file, path.join(relative, file))
 
     })
 
