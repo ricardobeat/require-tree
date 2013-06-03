@@ -24,16 +24,17 @@ function isDirectory (fpath) {
 function extend (obj, source) {
     for (var key in source){
         if (source.hasOwnProperty(key)) {
-            obj[key] = source[key]    
+            obj[key] = source[key]
         }
     }
     return obj
 }
 
-function require_tree (directory, options) {
-
+function require_tree (directory, options, depth) {
+    depth = depth || 0;
     options = extend({
-        index: true
+        index: true,
+        depthLimit: Infinity // let's hope no one will have more than 9999 nested directories
     }, options)
 
     var dir       = path.resolve(directory)
@@ -51,7 +52,9 @@ function require_tree (directory, options) {
           , item, obj
 
         if (isDirectory(fpath)) {
-            tree[name] = require_tree(fpath, options)
+            if(depth < options.depthLimit) {
+                tree[name] = require_tree(fpath, options, depth + 1)
+            }
             return
         }
 
