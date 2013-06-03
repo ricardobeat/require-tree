@@ -34,7 +34,7 @@ function require_tree (directory, options, depth) {
     depth = depth || 0;
     options = extend({
         index: true,
-        depthLimit: 9999 // let's hope no one will have more than 9999 nested directories
+        depthLimit: Infinity // let's hope no one will have more than 9999 nested directories
     }, options)
 
     var dir       = path.resolve(directory)
