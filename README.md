@@ -1,11 +1,9 @@
 require-tree
 ============
 
-Create an object tree from file directories. Useful for mapping API trees or 
-applications models/controllers.
+![NPM badge](https://nodei.co/npm/require-tree.png?compact=true)
 
-Install
--------
+Require multiple files at once, creating an object tree that mirrors the directory structure.
 
     npm install require-tree
 
@@ -14,30 +12,27 @@ Usage
 
     var require_tree = require('require-tree')
 
-Assuming you have a file structure like this:
-
-    /models
-      user.js
-      page.js
-      item.js
-
-You can require all models at once:
+    // File structure:
+    // ./models
+    //    user.js
+    //    page.js
+    //    item.js
 
     require_tree('./models')
 
-    /* => {
-        user: [object Object],
-        page: [object Object],
-        item: [object Object]
-    } */
+    // {
+    //    user: [object Object],
+    //    page: [object Object],
+    //    item: [object Object]
+    // }
 
-It works with nested directories:
+With nested directories:
 
-    /api
-      /pages
-        index.js
-        edit.js
-      user.js
+    // ./api
+    //   /pages
+    //     index.js
+    //     edit.js
+    //   user.js
 
     // api/pages/index.js:
     module.exports = {
@@ -56,20 +51,20 @@ It works with nested directories:
         posts: function(){ ... }
     }
 
-    var pages = require_tree('./api')
+    var api = require_tree('./api')
 
-    /* Result:
-        pages.list
-        pages.edit.getPermissions
-        pages.edit.remove
-        pages.user.profile
-        pages.user.posts
-    */
+    // api.pages.list
+    // api.pages.edit.getPermissions
+    // api.pages.edit.remove
+    // api.user.profile
+    // api.user.posts
 
-To require the current module's root folder, in case you are using a directory's
-`index.js` to load the rest of the tree, use `__dirname`:
+### Limitations
 
-    var tree = require_tree(__dirname, { index: false })
+Since v0.3 `require-tree` will resolve paths relative to the requiring module, like `require` itself.
+
+Since it depends on `module.parent` being set correctly, either `require-tree` must be explicitly required within the current module scope, or you need to provide an absolute path like `__dirname + '/somepath'`.
+
 
 ### Options
 
