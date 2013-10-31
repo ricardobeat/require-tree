@@ -39,9 +39,16 @@ function require_tree (directory, options) {
     var parentDir = path.dirname(module.parent.filename)
       , dir       = path.resolve(parentDir, directory)
       , forbidden = ['.json', '.node']
-      , tree = {}
+      , filter    = options.filter
+      , tree      = {}
 
     var files = fs.readdirSync(dir)
+
+    switch (type(filter)) {
+        case 'string'  : filter = new RegExp(filter)
+        case 'regexp'  : filter = filter.exec.bind(filter)
+        case 'function': files  = files.filter(filter)
+    }
 
     files.forEach(function(file){
 

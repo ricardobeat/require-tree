@@ -203,4 +203,42 @@ describe('when given the main option', function(){
 
 })
 
+describe('when given the filter option', function(){
 
+    describe('as a string', function () {
+
+        it('should filter the required files', function(){
+            var res = require_tree('./porto-alegre/bairros', {
+                filter: 'bom'
+            })
+            assert.deepEqual(res.bomfim, bairros.bomfim)
+            assert.deepEqual(Object.keys(res), ['bomfim'])
+        })
+
+    })
+
+    describe('as a regular expression', function () {
+
+        it('should filter the required files', function(){
+            var res = require_tree('./porto-alegre/bairros', {
+                filter: /^bo..im/
+            })
+            assert.deepEqual(res.bomfim, bairros.bomfim)
+            assert.deepEqual(Object.keys(res), ['bomfim'])
+        })
+
+    })
+
+    describe('as a function', function () {
+
+        it('should filter the required files', function(){
+            var res = require_tree('./porto-alegre/bairros', {
+                filter: function (file) { return file.indexOf('bomfim') === 0 }
+            })
+            assert.deepEqual(res.bomfim, bairros.bomfim)
+            assert.deepEqual(Object.keys(res), ['bomfim'])
+        })
+
+    })
+
+})
