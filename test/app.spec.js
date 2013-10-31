@@ -15,14 +15,40 @@ var bairros = {
   }
 }
 
+var POA = {
+    city: 'Porto Alegre'
+  , bairros: bairros
+}
+
 describe('when given a file tree', function(){
 
     it('returned object should match file structure', function(){
-        var poa = require_tree('test/porto-alegre')
-        assert.deepEqual(poa, {
-            city: 'Porto Alegre'
-          , bairros: bairros
-        })
+        var poa = require_tree('./porto-alegre')
+        assert.deepEqual(poa.bairros, bairros)
+    })
+
+    it('returned object should merge index into root object', function () {
+        var poa = require_tree('./porto-alegre')
+        assert.deepEqual(poa, POA)
+    })
+
+})
+
+describe('paths', function(){
+
+    it('should be relative to parent module', function(){
+        var poa = require('./deep/test')
+        assert.deepEqual(poa, POA)
+    })
+
+    it('should accept absolute paths', function(){
+        var poa = require_tree(__dirname + '/porto-alegre')
+        assert.deepEqual(poa, POA)
+    })
+
+    it('should resolve relative paths', function(){
+        var poa = require_tree('../test/porto-alegre')
+        assert.deepEqual(poa, POA)
     })
 
 })
@@ -30,7 +56,7 @@ describe('when given a file tree', function(){
 describe('when given the index:false option', function(){
 
     it('should ignore index files', function(){
-        var poa = require_tree('test/porto-alegre', { index: false })
+        var poa = require_tree('./porto-alegre', { index: false })
         assert.deepEqual(poa, {
             bairros: bairros
         })
@@ -42,10 +68,10 @@ describe('when given the each option', function(){
 
     it('should run once for each file', function(){
         var files = []
-        function each(file){
+        function each(o, file, path){
             files.push(file)
         }
-        var poa = require_tree('test/porto-alegre', { each: each })
+        var poa = require_tree('./porto-alegre', { each: each })
         assert.equal(files.length, 3)
         assert.deepEqual(files, ['bomfim.js', 'santo-antonio.js', 'index.js'])
     })
@@ -59,14 +85,14 @@ describe('when given the name option', function(){
         it('should run once for each file', function(){
             var x = 0
             function increment(){ x++ }
-            require_tree('test/porto-alegre/bairros', {
+            require_tree('./porto-alegre/bairros', {
                 name: increment
             })
             assert.equal(x, 2)
         })
 
         it('should define the exports name', function(){
-            var bairros = require_tree('test/porto-alegre/bairros', {
+            var bairros = require_tree('./porto-alegre/bairros', {
                 name: function(obj, file){
                     return file.toUpperCase()
                 }
@@ -76,7 +102,7 @@ describe('when given the name option', function(){
         })
 
         it('should be able to access the export object', function(){
-            var bairros = require_tree('test/porto-alegre/bairros', {
+            var bairros = require_tree('./porto-alegre/bairros', {
                 name: function(obj, file){
                     return obj.name
                 }
@@ -90,7 +116,7 @@ describe('when given the name option', function(){
     describe('with a string', function(){
 
         it('should use the string as key for the export name', function(){
-            var bairros = require_tree('test/porto-alegre/bairros', {
+            var bairros = require_tree('./porto-alegre/bairros', {
                 name: 'name'
             })
             assert.ok(bairros['Bom Fim'])
@@ -108,14 +134,14 @@ describe('when given the main option', function(){
         it('should run once for each file', function(){
             var x = 0
             function increment(){ x++ }
-            require_tree('test/porto-alegre/bairros', {
+            require_tree('./porto-alegre/bairros', {
                 main: increment
             })
             assert.equal(x, 2)
         })
 
         it('should define the export object', function(){
-            var bairros = require_tree('test/porto-alegre/bairros', {
+            var bairros = require_tree('./porto-alegre/bairros', {
                 main: function(){
                     return { nil: null }
                 }
@@ -127,7 +153,7 @@ describe('when given the main option', function(){
         })
 
         it('should be able to access the export object', function(){
-            var bairros = require_tree('test/porto-alegre/bairros', {
+            var bairros = require_tree('./porto-alegre/bairros', {
                 main: function(obj){
                     return obj.rating
                 }
@@ -144,7 +170,7 @@ describe('when given the main option', function(){
     describe('with an array', function(){
 
         it ('should filter the exports object', function(){
-            var bairros = require_tree('test/porto-alegre/bairros', {
+            var bairros = require_tree('./porto-alegre/bairros', {
                 main: ['rating', 'zone']
             })
             assert.deepEqual(bairros, {
@@ -164,7 +190,7 @@ describe('when given the main option', function(){
     describe('with a string', function(){
 
         it('should filter the exports object', function(){
-            var bairros = require_tree('test/porto-alegre/bairros', {
+            var bairros = require_tree('./porto-alegre/bairros', {
                 main: 'zone'
             })
             assert.deepEqual(bairros, {

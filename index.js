@@ -36,8 +36,8 @@ function require_tree (directory, options) {
         index: true
     }, options)
 
-    var dir       = path.resolve(directory)
-      , relative  = path.relative(process.cwd(), directory)
+    var parentDir = path.dirname(module.parent.filename)
+      , dir       = path.resolve(parentDir, directory)
       , forbidden = ['.json', '.node']
       , tree = {}
 
@@ -91,7 +91,7 @@ function require_tree (directory, options) {
             tree[name] = obj
         }
 
-        options.each && options.each(obj, file, path.join(relative, file))
+        options.each && options.each(obj, file, path.join(dir, file))
 
     })
 
@@ -99,3 +99,6 @@ function require_tree (directory, options) {
 }
 
 module.exports = require_tree
+
+// Necessary to get the current `module.parent` and resolve paths correctly.
+delete require.cache[__filename];
