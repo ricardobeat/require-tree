@@ -69,8 +69,10 @@ Since it depends on `module.parent` being set correctly, either `require-tree` m
 ### Options
 
     {
-        name  : [String | Function(exports, file)]         // the object's property to use as key
-        main  : [String | Array | Function(exports, file)] // what keys should be exported
-        index : [Boolean]                                  // load 'index.js' files (`true` by default)
-        each  : [Function]                                 // callback to run after each module
+        name   : [String | Function(exports, file)]         // the object's property to use as key
+        main   : [String | Array | Function(exports, file)] // what keys should be exported
+        index  : [Boolean]                                  // load 'index.js' files (`true` by default)
+        filter : [String | RegExp | Function]               // filter pattern
+        each   : [Function]                                 // callback to run after each module
     }
+
