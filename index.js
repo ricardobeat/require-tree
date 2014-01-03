@@ -58,7 +58,7 @@ function require_tree (directory, options) {
           , item, obj
 
         if (isDirectory(fpath)) {
-            tree[name] = require_tree(fpath, options)
+            tree[file] = require_tree(fpath, options)
             return
         }
 
