@@ -20,6 +20,12 @@ var POA = {
   , bairros: bairros
 }
 
+var VERSIONED = {
+    '1.0.0': {
+        v1: 'success'
+    }
+}
+
 describe('when given a file tree', function(){
 
     it('returned object should match file structure', function(){
@@ -32,6 +38,15 @@ describe('when given a file tree', function(){
         assert.deepEqual(poa, POA)
     })
 
+})
+
+describe('folder name', function() {
+    
+    it('should be mapped as named in filesystem', function(){
+        var versioned = require_tree('./dot-in-foldername')
+        assert.deepEqual(versioned, VERSIONED)
+    });
+    
 })
 
 describe('paths', function(){
