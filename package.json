@@ -22,9 +22,13 @@
   "keywords": [
     "require",
     "tree",
-    "api",
+    "multiple",
     "paths",
+    "nested",
+    "folders",
     "directory",
-    "directories"
+    "directories",
+    "loader",
+    "api"
   ]
 }
