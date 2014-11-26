@@ -36,8 +36,8 @@ function require_tree (directory, options) {
         index: true
     }, options)
 
-    var parentDir = path.dirname(module.parent.filename)
-      , dir       = path.resolve(parentDir, directory)
+    var baseDir   = process.env.NODE_PATH || path.dirname(module.parent.filename)
+      , dir       = path.resolve(baseDir, directory)
       , forbidden = ['.json', '.node']
       , filter    = options.filter
       , tree      = {}
