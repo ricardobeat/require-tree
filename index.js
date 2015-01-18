@@ -62,8 +62,7 @@ function require_tree (directory, options) {
             return
         }
 
-        if ((!options.index && name === 'index')
-            || forbidden.indexOf(ext) >= 0
+        if (forbidden.indexOf(ext) >= 0
             || !(ext in require.extensions)
         ) return
 
@@ -92,7 +91,7 @@ function require_tree (directory, options) {
                 name = options.name(item, file)
         }
 
-        if (name === 'index') {
+        if (options.index && name === 'index') {
             extend(tree, obj)
         } else {
             tree[name] = obj
