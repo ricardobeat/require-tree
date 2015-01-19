@@ -1,7 +1,7 @@
 // require-tree
 // ============
+// Batch module loader for nodejs
 /*
-require() a directory tree
 
 (c) Ricardo Tomasi 2012-2015
 License: MIT <ricardo.mit-license.org>

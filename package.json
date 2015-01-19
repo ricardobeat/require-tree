@@ -1,7 +1,7 @@
 {
   "name": "require-tree",
-  "description": "require() whole directory trees",
-  "version": "1.0.0",
+  "description": "Batch module loader, require() for directories",
+  "version": "1.0.1",
   "main": "index.js",
   "dependencies": {
     "component-type": "^1.1.0",
@@ -32,6 +32,10 @@
     "directory",
     "directories",
     "loader",
-    "api"
+    "api",
+    "batch",
+    "module",
+    "loading",
+    "loader"
   ]
 }
