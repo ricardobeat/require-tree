@@ -118,7 +118,7 @@ Same as `each`, but can modify the exports object.
 require_tree('./models', { transform: function (obj) { return new Model(obj) } })
 ```
 
-#### index
+#### { index: 'merge', 'ignore', 'preserve' }
 
   * `merge` (default): merges the `index.js` exports at the root of it's parent
   * `ignore`: causes `index.js` files to *not be loaded* at all
