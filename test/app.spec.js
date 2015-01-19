@@ -68,12 +68,47 @@ describe('paths', function(){
 
 })
 
-describe('when given the index:false option', function(){
+describe('when given the index option', function(){
 
-    it('should ignore index files', function(){
-        var poa = require_tree('./porto-alegre', { index: false })
-        assert.deepEqual(poa, {
-            bairros: bairros
+    describe('preserve', function () {
+        it('should put index under it\'s own key', function(){
+            var poa = require_tree('./porto-alegre', { index: 'preserve' })
+            assert.deepEqual(poa, {
+                bairros: bairros,
+                index: { city: POA.city }
+            })
+        })
+        it('should put index under it\'s own key (index: true)', function(){
+            var poa = require_tree('./porto-alegre', { index: true })
+            assert.deepEqual(poa, {
+                bairros: bairros,
+                index: { city: POA.city }
+            })
+        })
+    })
+
+    describe('merge', function () {
+        it('should merge index at the root', function(){
+            var poa = require_tree('./porto-alegre', { index: 'merge' })
+            assert.deepEqual(poa, {
+                bairros: bairros,
+                city: POA.city
+            })
+        })
+    })
+
+    describe('ignore', function () {
+        it('should not load index', function(){
+            var poa = require_tree('./porto-alegre', { index: 'ignore' })
+            assert.deepEqual(poa, {
+                bairros: bairros
+            })
+        })
+        it('should not load index (index: false)', function(){
+            var poa = require_tree('./porto-alegre', { index: false })
+            assert.deepEqual(poa, {
+                bairros: bairros
+            })
         })
     })
 
@@ -91,6 +126,18 @@ describe('when given the each option', function(){
         assert.deepEqual(files, ['bomfim.js', 'santo-antonio.js', 'index.js'])
     })
 
+})
+
+describe('when given the transform option', function (){
+    it('should redefine the exports object', function(){
+        var bairros = require_tree('./porto-alegre/bairros', {
+            transform: function(){ return null }
+        })
+        assert.deepEqual(bairros, {
+            'bomfim': null
+          , 'santo-antonio': null
+        })
+    })
 })
 
 describe('when given the name option', function(){
@@ -142,51 +189,30 @@ describe('when given the name option', function(){
 
 })
 
-describe('when given the main option', function(){
+describe('when given the keys option', function(){
 
     describe('with a function', function(){
 
-        it('should run once for each file', function(){
+        it('should run once for each key', function(){
             var x = 0
             function increment(){ x++ }
-            require_tree('./porto-alegre/bairros', {
-                main: increment
-            })
-            assert.equal(x, 2)
+            require_tree('./porto-alegre/bairros', { keys: increment })
+            assert.equal(x, 6)
         })
 
-        it('should define the export object', function(){
+        it ('should filter the exports object', function(){
             var bairros = require_tree('./porto-alegre/bairros', {
-                main: function(){
-                    return { nil: null }
-                }
+                keys: ['rating', 'zone']
             })
-            assert.deepEqual(bairros, {
-                'bomfim': { nil: null }
-              , 'santo-antonio': { nil: null }
-            })
-        })
-
-        it('should be able to access the export object', function(){
-            var bairros = require_tree('./porto-alegre/bairros', {
-                main: function(obj){
-                    return obj.rating
-                }
-            })
-            assert.deepEqual(bairros, {
-                'bomfim': '*****'
-              , 'santo-antonio': '***'
-            })
-
         })
 
     })
 
     describe('with an array', function(){
 
-        it ('should filter the exports object', function(){
+        it('should filter the exports object', function(){
             var bairros = require_tree('./porto-alegre/bairros', {
-                main: ['rating', 'zone']
+                keys: ['rating', 'zone']
             })
             assert.deepEqual(bairros, {
                 'bomfim': {
@@ -224,7 +250,7 @@ describe('when given the filter option', function(){
 
         it('should filter the required files', function(){
             var res = require_tree('./porto-alegre/bairros', {
-                filter: 'bom'
+                filter: 'bom*'
             })
             assert.deepEqual(res.bomfim, bairros.bomfim)
             assert.deepEqual(Object.keys(res), ['bomfim'])

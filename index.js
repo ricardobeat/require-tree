@@ -3,101 +3,104 @@
 /*
 require() a directory tree
 
-(c) Ricardo Tomasi 2012
+(c) Ricardo Tomasi 2012-2015
 License: MIT <ricardo.mit-license.org>
 
 */
 
-var fs   = require('fs')
-  , path = require('path')
+var fs     = require('fs')
+  , path   = require('path')
+  , extend = require('extend')
+  , type   = require('component-type')
 
-function type (obj) {
-    return Object.prototype.toString.call(obj)
-        .match(/object\s(\w+)/, '')[1]
-        .toLowerCase()
-}
-
-function isDirectory (fpath) {
-    return fs.lstatSync(fpath).isDirectory()
-}
-
-function extend (obj, source) {
-    for (var key in source){
-        if (source.hasOwnProperty(key)) {
-            obj[key] = source[key]    
-        }
+function getFilter (filter) {
+    switch (type(filter)) {
+        case 'array'    : filter = filter.join('|')
+        case 'string'   : filter = new RegExp('^('+filter.replace('*', '.*')+')$', 'i')
+        case 'regexp'   : filter = filter.exec.bind(filter)
+        case 'function' : return filter
     }
-    return obj
+    // return undefined
 }
 
 function require_tree (directory, options) {
 
     options = extend({
-        index: true
+        index: 'merge'
     }, options)
 
     var baseDir   = process.env.NODE_PATH || path.dirname(module.parent.filename)
       , dir       = path.resolve(baseDir, directory)
       , forbidden = ['.json', '.node']
-      , filter    = options.filter
+      , filter    = getFilter(options.filter) || Boolean
       , tree      = {}
+      , files     = fs.readdirSync(dir)
 
-    var files = fs.readdirSync(dir)
-
-    switch (type(filter)) {
-        case 'string'  : filter = new RegExp(filter)
-        case 'regexp'  : filter = filter.exec.bind(filter)
-        case 'function': files  = files.filter(filter)
-    }
-
-    files.forEach(function(file){
+    files.filter(filter).forEach(function(file){
 
         var ext   = path.extname(file)
           , name  = path.basename(file, ext)
           , fpath = path.join(dir, file)
-          , item, obj
+          , exported, _exported
 
-        if (isDirectory(fpath)) {
+        if (fs.lstatSync(fpath).isDirectory()) {
             tree[file] = require_tree(fpath, options)
             return
         }
 
-        if (forbidden.indexOf(ext) >= 0
-            || !(ext in require.extensions)
-        ) return
+        if (forbidden.indexOf(ext) >= 0  ||
+            !(ext in require.extensions) ||
+            (name === 'index' && /ignore|false/.test(options.index))) {
+            return
+        }
 
-        obj = item = require(fpath)
+        exported = _exported = require(fpath)
+
+        if (options.keys) {
+            var keys = getFilter(options.keys)
+            exported = {}
+            Object.getOwnPropertyNames(_exported).forEach(function(key){
+                if (keys(key)) {
+                    exported[key] = _exported[key]
+                }
+            })
+        }
 
         switch (type(options.main)) {
             case 'string':
-                obj = item[options.main]
+                exported = exported[options.main]
                 break
             case 'function':
-                obj = options.main(item, file)
+                exported = options.main(exported, file)
                 break
             case 'array':
-                obj = {}
-                Object.keys(item).forEach(function(key){
-                    if (options.main.indexOf(key) >= 0)
-                        obj[key] = item[key]
+                exported = {}
+                Object.getOwnPropertyNames(_exported).forEach(function(key){
+                    if (options.main.indexOf(key) >= 0) {
+                        exported[key] = _exported[key]
+                    }
                 })
         }
 
         switch (type(options.name)) {
             case 'string':
-                name = item[options.name]
+                name = exported[options.name]
                 break
             case 'function':
-                name = options.name(item, file)
+                name = options.name(exported, file)
         }
 
-        if (options.index && name === 'index') {
-            extend(tree, obj)
-        } else {
-            tree[name] = obj
+        if (type(options.transform) === 'function') {
+            exported = options.transform(exported, file, path.join(dir, file))
         }
 
-        options.each && options.each(obj, file, path.join(dir, file))
+        if (name === 'index' && options.index === 'merge') {
+            extend(tree, exported)
+        } else { /* if name !== 'index' || options.index === 'preserve' */
+            tree[name] = exported
+        }
+
+        options.each && options.each(exported, file, path.join(dir, file))
 
     })
 
@@ -107,4 +110,4 @@ function require_tree (directory, options) {
 module.exports = require_tree
 
 // Necessary to get the current `module.parent` and resolve paths correctly.
-delete require.cache[__filename];
+delete require.cache[__filename]

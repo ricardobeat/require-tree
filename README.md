@@ -1,78 +1,152 @@
 require-tree
 ============
 
-![NPM badge](https://nodei.co/npm/require-tree.png?compact=true)
+![NPM](https://img.shields.io/npm/v/require-tree.svg?style=flat)
 
-Require multiple files at once, creating an object tree that mirrors the directory structure.
+A `require()`-like method for directories, returning an object that mirrors the file tree.
 
     npm install require-tree
 
-Usage
------
+## Usage
 
-    var require_tree = require('require-tree')
+Considering this file structure:
 
-    // File structure:
-    // ./models
-    //    user.js
-    //    page.js
-    //    item.js
+* models
+  * user.js
+  * page.js
+  * item.js
 
-    require_tree('./models')
+Requiring the `models` directory will return an object containing each exported module:
 
-    // {
-    //    user: [object Object],
-    //    page: [object Object],
-    //    item: [object Object]
-    // }
+```javascript
+var require_tree = require('require-tree')
+require_tree('./models')
+/* {
+    user: [object Object],
+    page: [object Object],
+    item: [object Object]
+} */
+```
 
-With nested directories:
+Directories can be deeply nested, and`index.js` files are merged into their parent by default:
 
-    // ./api
-    //   /pages
-    //     index.js
-    //     edit.js
-    //   user.js
+```javascript
+// api/user.js:
+module.exports = {
+    profile: function(){},
+    posts: function(){}
+}
 
-    // api/pages/index.js:
-    module.exports = {
-        list: function(){ ... }
-    }
+// api/pages/index.js:
+module.exports = {
+    list: function(){}
+}
 
-    // api/pages/edit.js:
-    module.exports = {
-        getPermissions: function(){ ... },
-        remove: function(){ ... }
-    }
+// api/pages/edit.js:
+module.exports = {
+    getPermissions: function(){},
+    remove: function(){}
+}
 
-    // api/user.js:
-    module.exports = {
-        profile: function(){ ... },
-        posts: function(){ ... }
-    }
+var api = require_tree('./api')
+```
 
-    var api = require_tree('./api')
+This will yield
 
-    // api.pages.list
-    // api.pages.edit.getPermissions
-    // api.pages.edit.remove
-    // api.user.profile
-    // api.user.posts
-
-### Limitations
-
-Since v0.3 `require-tree` will resolve paths relative to the requiring module, like `require` itself.
-
-Since it depends on `module.parent` being set correctly, either `require-tree` must be explicitly required within the current module scope, or you need to provide an absolute path like `__dirname + '/somepath'`.
-
+- `api.user.profile`
+- `api.user.posts`
+- `api.pages.list`
+- `api.pages.edit.getPermissions`
+- `api.pages.edit.remove`
 
 ### Options
 
-    {
-        name   : [String | Function(exports, file)]         // the object's property to use as key
-        main   : [String | Array | Function(exports, file)] // what keys should be exported
-        index  : [Boolean]                                  // load 'index.js' files (`true` by default)
-        filter : [String | RegExp | Function]               // filter pattern
-        each   : [Function]                                 // callback to run after each module
-    }
+```javascript
+require_tree(path, { options })
+```
 
+#### { name: string | function (exports) }
+
+Use a property of the exports object as it's key (instead of the filename) in the final object.
+
+```javascript
+// models/user-model.js
+module.exports = {
+    id: 'user',
+    attrs: {}
+}
+
+require_tree('./models', { name: 'id' })
+require_tree('./models', { name: function (obj) { return obj.id } })
+// => { user: { id: 'user', attrs: {} } }
+```
+
+#### { filter: string | regexp | function }
+
+Filter the required files. Strings can use a wildcard '*' and are expanded into regular expressions. You can also provide your own RegExp, or a function that receives the filename as an argument, and returns `true` or `false`.
+
+```javascript
+require_tree('./path', { filter: '*-model' })
+require_tree('./path', { filter: /^model/ })
+require_tree('./path', { filter: function (filename) { return filename.indexOf('model') === 0 } })
+```
+
+#### { keys: string | array | regexp | function }
+
+Use to return only certain keys from exported objects. 
+
+```javascript
+require_tree('./models', { keys: 'at*' })
+require_tree('./models', { keys: ['attrs'] })
+require_tree('./models', { keys: function (key){ return key.indexOf('attrs') >= 0 } })
+// => { user: { attrs: {} } }
+```
+
+#### { each: function }
+
+Callback to run after each file is required. Doesn't modify the exported object.
+
+```javascript
+require_tree('./items', { each: function (obj) { items.insert(obj) } })
+```
+
+#### { transform: function }
+
+Same as `each`, but can modify the exports object.
+
+```javascript
+require_tree('./models', { transform: function (obj) { return new Model(obj) } })
+```
+
+#### index
+
+  * `merge` (default): merges the `index.js` exports at the root of it's parent
+  * `ignore`: causes `index.js` files to *not be loaded* at all
+  * `preserve`: puts the `index.js` export object under the `.index` property
+
+For backwards compatibility, a value of `true` is equal to `preserve`, while `false` is equal to `ignore`.
+
+- controllers
+  - index.js
+  - users.js
+  - ...
+
+```javascript
+// controllers/index.js:
+module.exports = {
+    init: function () { ... }
+}
+
+var controllers = require_tree('./controllers', { index: 'preserve' })
+controllers.index.init()
+
+var controllers = require_tree('./controllers', { index: 'ignore' })
+controllers.index // undefined
+
+var controllers = require_tree('./controllers', { index: 'merge' })
+controllers.init()
+```
+
+### Limitations
+
+`require-tree` must always be required in the local scope, and never shared between modules. Paths are resolved relative to the parent module, like `require` itself, so it's behaviour depends on `module.parent` being set correctly. If necessary, you can use absolute paths (`__dirname + '/path'`) or set the `NODE_PATH` environment variable.
