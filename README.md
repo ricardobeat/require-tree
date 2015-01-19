@@ -149,4 +149,4 @@ controllers.init()
 
 ### Limitations
 
-`require-tree` must always be required in the local scope, and never shared between modules. Paths are resolved relative to the parent module, like `require` itself, so it's behaviour depends on `module.parent` being set correctly. If necessary, you can use absolute paths (`__dirname + '/path'`) or set the `NODE_PATH` environment variable.
+`require-tree` must always be required in the local scope, never shared between modules or as a global. Paths are resolved relative to the parent module, like `require` itself, so it's behaviour depends on `module.parent` being set correctly. If necessary, you can use absolute paths (`__dirname + '/path'`) or set the `NODE_PATH` environment variable.
