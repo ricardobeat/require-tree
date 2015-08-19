@@ -29,7 +29,7 @@ function require_tree (directory, options) {
         index: 'merge'
     }, options)
 
-    var baseDir   = process.env.NODE_PATH || path.dirname(module.parent.filename)
+    var baseDir   = path.dirname(module.parent.filename)
       , dir       = path.resolve(baseDir, directory)
       , forbidden = ['.json', '.node']
       , filter    = getFilter(options.filter) || Boolean
