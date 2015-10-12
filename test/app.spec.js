@@ -1,5 +1,7 @@
 
 var assert       = require('assert')
+  , path         = require('path')
+  , env          = require('./lib/fake-env')
   , require_tree = require('../')
 
 var bairros = {
@@ -64,6 +66,28 @@ describe('paths', function(){
     it('should resolve relative paths', function(){
         var poa = require_tree('../test/porto-alegre')
         assert.deepEqual(poa, POA)
+    })
+
+    describe('NODE PATH', function (){
+
+        it('should be used for lookup if present', function () {
+            env.set('NODE_PATH', path.join(process.cwd(), 'test/node_path'))
+            var hippo = require_tree('hippo')
+            assert.deepEqual(hippo, { hippo: 1 })
+            env.restore()
+        })
+
+        it('should accept multiple paths', function () {
+            env.set('NODE_PATH', [
+                    path.join(process.cwd(), 'test/not_a_path'),
+                    path.join(process.cwd(), 'test/node_path')
+                ].join(';')
+            )
+            var hippo = require_tree('hippo')
+            assert.deepEqual(hippo, { hippo: 1 })
+            env.restore()
+        })
+
     })
 
 })

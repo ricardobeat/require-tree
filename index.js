@@ -29,14 +29,31 @@ function require_tree (directory, options) {
         index: 'merge'
     }, options)
 
-    var baseDir   = process.env.NODE_PATH || path.dirname(module.parent.filename)
-      , dir       = path.resolve(baseDir, directory)
+    var parentDir = path.dirname(module.parent.filename)
+      , baseDirs  = [parentDir]
       , forbidden = ['.json', '.node']
       , filter    = getFilter(options.filter) || Boolean
       , tree      = {}
-      , files     = fs.readdirSync(dir)
+      , dir       = null
+      , files     = null
 
-    files.filter(filter).forEach(function(file){
+    if (process.env.NODE_PATH) {
+        Array.prototype.unshift.apply(baseDirs, process.env.NODE_PATH.split(';'));
+    }
+
+    var exists = baseDirs.some(function(baseDir){
+        try {
+            dir = path.resolve(baseDir, directory)
+            fs.accessSync ? fs.accessSync(dir) : fs.existsSync(dir)
+            return true
+        } catch (err) {}
+    })
+
+    if (exists === false) {
+        throw new Error('Cannot find directory ' + directory + ' in paths ' + baseDirs.join(';'))
+    }
+
+    fs.readdirSync(dir).filter(filter).forEach(function(file){
 
         var ext   = path.extname(file)
           , name  = path.basename(file, ext)
