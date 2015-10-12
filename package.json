@@ -1,7 +1,7 @@
 {
   "name": "require-tree",
   "description": "Batch module loader, require() for directories",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "main": "index.js",
   "dependencies": {
     "component-type": "^1.1.0",
