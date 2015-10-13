@@ -47,7 +47,7 @@ describe('folder name', function() {
     it('should be mapped as named in filesystem', function(){
         var versioned = require_tree('./dot-in-foldername')
         assert.deepEqual(versioned, VERSIONED)
-    });
+    })
     
 })
 
@@ -81,7 +81,7 @@ describe('paths', function(){
             env.set('NODE_PATH', [
                     path.join(process.cwd(), 'test/not_a_path'),
                     path.join(process.cwd(), 'test/node_path')
-                ].join(';')
+                ].join(path.delimiter)
             )
             var hippo = require_tree('hippo')
             assert.deepEqual(hippo, { hippo: 1 })

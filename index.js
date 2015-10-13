@@ -38,7 +38,7 @@ function require_tree (directory, options) {
       , files     = null
 
     if (process.env.NODE_PATH) {
-        Array.prototype.unshift.apply(baseDirs, process.env.NODE_PATH.split(';'));
+        Array.prototype.unshift.apply(baseDirs, process.env.NODE_PATH.split(path.delimiter));
     }
 
     var exists = baseDirs.some(function(baseDir){
