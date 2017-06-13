@@ -44,8 +44,12 @@ function require_tree (directory, options) {
     var exists = baseDirs.some(function(baseDir){
         try {
             dir = path.resolve(baseDir, directory)
-            fs.accessSync ? fs.accessSync(dir) : fs.existsSync(dir)
-            return true
+            if(fs.accessSync) {
+                 fs.accessSync(dir)
+                 return true
+            } else {
+                 return fs.existsSync(dir)
+            }
         } catch (err) {}
     })
 
